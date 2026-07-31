@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLIP MultiModal Insight AI - Advanced Research assistant</title>
+  <meta name="description" content="Futuristic AI-powered research assistant featuring glassmorphism layout, knowledge graphs, and automated PDF insights.">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Chart.js for premium analytics visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- PDF.js for client-side PDF text extraction -->
+  <script src="pdf.min.js?v=2.1"></script>
+</head>
+<body>
+
+  <!-- Ambient 3D Plexus Background Video Loop -->
+  <video autoplay loop muted playsinline id="bgVideoAmbient" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -10; opacity: 0.12; pointer-events: none; filter: saturate(0.6) brightness(0.8) contrast(1.2);">
+    <source src="plexus.mp4" type="video/mp4">
+  </video>
+
+  <!-- Hamburger Toggle for Mobile Views -->
+  <button class="sidebar-toggle-btn" id="mobileSidebarToggle" aria-label="Toggle Navigation Sidebar">
+    <i data-lucide="menu"></i>
+  </button>
+
+  <div class="app-container" id="appRoot">
+    
+    <!-- LANDING & AUTHENTICATION SHELL (visible initially) -->
+    <div class="auth-landing-container" id="landingShell">
+      <!-- Nav Header -->
+      <header class="nav-header">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <i data-lucide="brain-circuit" style="color: white; width: 18px; height: 18px;"></i>
+          </div>
+          <span class="gradient-text">CLIP MultiModal Insight AI</span>
+        </div>
+        <nav class="nav-links">
+          <span class="nav-link" onclick="window.appRouter.navigate('landing')">Home</span>
+          <span class="nav-link" onclick="document.getElementById('featuresSec').scrollIntoView({behavior: 'smooth'})">Features</span>
+          <span class="nav-link" onclick="window.appRouter.navigate('auth')">Sign In</span>
+          <button class="btn btn-primary" onclick="window.appRouter.navigate('auth')">Get Started</button>
+        </nav>
+      </header>
+
+      <!-- 1. LANDING PAGE -->
+      <section id="view-landing" class="page-view active">
+        <div class="landing-hero">
+          <div class="hero-tag">V1.4 Release: Multimodal Embeddings</div>
+          <h1 class="hero-title">Decode Complex Research Papers with <span class="gradient-text">Generative AI</span></h1>
+          <p class="hero-description">Instantly extract methodologies, structure knowledge graphs, analyze diagrams, and chat with complex research publications using state-of-the-art vision models.</p>
+          
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="window.appRouter.navigate('auth')">Start Researching Free</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('demoSec').scrollIntoView({behavior: 'smooth'})">Watch Demo</button>
+          </div>
+
+          <!-- Hero Illustration: Custom Interactive 3D Canvas Particle Brain -->
+          <div class="hero-illustration" style="position: relative; height: 350px; display: flex; align-items: center; justify-content: center;">
+            <canvas id="landingBrainCanvas" width="800" height="350" style="width: 100%; height: 100%; display: block; max-width: 800px; z-index: 2; position: relative;"></canvas>
+            <div class="neural-stars-bg" id="landingStarsBg"></div>
+          </div>
+        </div>
+
+        <!-- Features grid -->
+        <div class="landing-section" id="featuresSec">
+          <h2 class="section-title">Engineered for Modern Scientists</h2>
+          <p class="section-subtitle">A collection of premium multimodal tools designed to accelerate literature reviews.</p>
+          
+          <div class="features-grid">
+            <div class="glass-panel glass-panel-hover feature-card">
+              <div class="feature-icon-container">
+                <i data-lucide="layers"></i>
+              </div>
+              <h3>Hierarchical Extraction</h3>
+              <p style="margin-top: 0.75rem;">Deconstructs complex publications into abstract matrices, key methodology variables, dataset parameters, and core findings automatically.</p>
+            </div>
+            <div class="glass-panel glass-panel-hover feature-card">
+              <div class="feature-icon-container">
+                <i data-lucide="eye"></i>
+              </div>
+              <h3>Multimodal Figure Reader</h3>
+              <p style="margin-top: 0.75rem;">Uses vision LLMs to isolate charts, tables, and system schematics, providing rich contextual explanations and mathematical alignments.</p>
+            </div>
+            <div class="glass-panel glass-panel-hover feature-card">
+              <div class="feature-icon-container">
+                <i data-lucide="share-2"></i>
+              </div>
+              <h3>Interactive Knowledge Mapping</h3>
+              <p style="margin-top: 0.75rem;">Connects models, authors, metrics, and dataset nodes dynamically. Graph links highlight logical pathways across literature groups.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Workflow Animation Section -->
+        <div class="landing-section" id="demoSec">
+          <h2 class="section-title">The Multimodal Extraction Pipeline</h2>
+          <p class="section-subtitle">How CLIP MultiModal Insight AI processes academic literature in real-time.</p>
+          
+          <div class="pipeline-3d-view" style="margin-top: 2rem;">
+            <div class="pipeline-3d-flow" id="multimodalPipeline3d">
+              <!-- Render 3D Cubes dynamically via JS -->
+            </div>
+            
+            <!-- Tooltip details overlay -->
+            <div class="glass-panel" id="pipelineTooltip" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: none; padding: 1rem 1.5rem; border-radius: 12px; z-index: 10; min-width: 280px; max-width: 400px; text-align: left; border: 1px solid var(--border-glass-hover); background: rgba(11, 17, 32, 0.95); backdrop-filter: blur(16px);">
+              <h4 id="tooltipStageName" style="color: var(--primary-cyan); margin-bottom: 0.25rem; font-size: 0.95rem; font-weight: bold;">Stage</h4>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;" id="tooltipStageModel">Model: N/A</div>
+              <p style="font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary); margin-bottom: 0.75rem;" id="tooltipStageDesc">Description details go here...</p>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.5rem; font-size: 0.75rem;">
+                <div><span style="color: var(--text-muted);">Input:</span> <span id="tooltipStageInput" style="color: white; font-weight: 500;">Text</span></div>
+                <div><span style="color: var(--text-muted);">Output:</span> <span id="tooltipStageOutput" style="color: white; font-weight: 500;">Vectors</span></div>
+                <div><span style="color: var(--text-muted);">Latency:</span> <span id="tooltipStageLatency" style="color: var(--success); font-weight: bold;">12ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonials -->
+        <div class="landing-section">
+          <h2 class="section-title">Loved by Researchers Worldwide</h2>
+          <p class="section-subtitle">Hear what leading AI scientists, PhD students, and builders say about the application.</p>
+          
+          <div class="testimonials-grid">
+            <div class="glass-panel testimonial-card">
+              <p class="testimonial-quote">"CLIP MultiModal Insight AI has cut down my literature search time by over 50%. The ability to click a figure and instantly see the mathematical explanations aligns perfectly with my workflow."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background: var(--grad-blue-purple)"></div>
+                <div>
+                  <h4 style="font-size: 0.9rem;">Dr. Sarah Jenkins</h4>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">AI Research Scientist, Stanford</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-panel testimonial-card">
+              <p class="testimonial-quote">"The interactive Knowledge Graph is a game-changer. I can trace models and their evaluated datasets instantly without jumping between ten different reference panels."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background: var(--grad-purple-cyan)"></div>
+                <div>
+                  <h4 style="font-size: 0.9rem;">Marcus Zhao</h4>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">PhD Candidate, MIT CSAIL</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+          <div class="footer-content">
+            <div>
+              <div class="footer-logo">
+                <span class="gradient-text">CLIP MultiModal Insight AI</span>
+              </div>
+              <p style="font-size: 0.9rem;">Empowering AI researchers, developers, and students to digest information instantly. Designed with Apple-level minimalism and glassmorphic aesthetics.</p>
+            </div>
+            <div class="footer-links-col">
+              <h4>Product</h4>
+              <ul>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Integrations</a></li>
+                <li><a href="#">Pricing</a></li>
+              </ul>
+            </div>
+            <div class="footer-links-col">
+              <h4>Resources</h4>
+              <ul>
+                <li><a href="#">Documentation</a></li>
+                <li><a href="#">API Reference</a></li>
+                <li><a href="#">Community Forum</a></li>
+              </ul>
+            </div>
+            <div class="footer-links-col">
+              <h4>Company</h4>
+              <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>&copy; 2026 CLIP MultiModal Insight AI. All rights reserved.</span>
+            <span>OS Status: Active</span>
+          </div>
+        </footer>
+      </section>
+
+      <!-- 2. AUTHENTICATION (Login, Register, Forgot Password) -->
+      <section id="view-auth" class="page-view">
+        <div class="auth-page-wrapper">
+          <div class="glass-panel auth-card">
+            <div class="auth-header">
+              <h2>Welcome to the Future</h2>
+              <p>Sign in to configure your custom research space</p>
+            </div>
+            
+            <div class="auth-tabs">
+              <button class="auth-tab-btn active" id="btnTabLogin">Sign In</button>
+              <button class="auth-tab-btn" id="btnTabRegister">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="authForm" onsubmit="event.preventDefault();">
+              <div class="auth-form-group">
+                <label for="authEmail">Email Address</label>
+                <div class="auth-input-container">
+                  <i data-lucide="mail"></i>
+                  <input type="email" id="authEmail" class="auth-input" placeholder="name@domain.com" required>
+                </div>
+              </div>
+              
+              <div class="auth-form-group">
+                <label for="authPassword">Password</label>
+                <div class="auth-input-container">
+                  <i data-lucide="lock"></i>
+                  <input type="password" id="authPassword" class="auth-input" placeholder="••••••••" required>
+                </div>
+              </div>
+
+              <div class="auth-options">
+                <label class="remember-me">
+                  <input type="checkbox"> Remember me
+                </label>
+                <span class="forgot-pass-link" id="triggerForgotPass">Forgot Password?</span>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="authSubmitBtn">Sign In</button>
+            </form>
+
+            <div class="social-auth">
+              <div class="social-divider">or continue with</div>
+              <button class="btn-social" id="googleSignInBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                </svg>
+                Google Credentials
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- MAIN DASHBOARD SHELL (visible when signed-in) -->
+    <div class="app-sidebar" id="sidebarShell" style="display: none;">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <i data-lucide="brain-circuit" style="color: white; width: 16px; height: 16px;"></i>
+        </div>
+        <span class="gradient-text">Insight AI</span>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="sidebar-item active" data-target="dashboard">
+          <i data-lucide="layout-dashboard"></i> Dashboard
+        </li>
+        <li class="sidebar-item" data-target="upload">
+          <i data-lucide="upload-cloud"></i> Upload Paper
+        </li>
+
+        <div class="sidebar-section-title">Core Workspace</div>
+        <li class="sidebar-item" data-target="viewer">
+          <i data-lucide="book-open"></i> Split Viewer
+        </li>
+        <li class="sidebar-item" data-target="summary">
+          <i data-lucide="sparkles"></i> AI Summary
+        </li>
+        <li class="sidebar-item" data-target="chat">
+          <i data-lucide="message-square"></i> AI Research Chat
+        </li>
+        <li class="sidebar-item" data-target="academic">
+          <i data-lucide="graduation-cap"></i> Conference Dossier
+        </li>
+
+        <div class="sidebar-section-title">MultiModal & Analysis</div>
+        <li class="sidebar-item" data-target="figures">
+          <i data-lucide="image"></i> Extracted Figures
+        </li>
+        <li class="sidebar-item" data-target="clip">
+          <i data-lucide="workflow"></i> CLIP Workspace
+        </li>
+        <li class="sidebar-item" data-target="xai">
+          <i data-lucide="eye"></i> Explainable AI (XAI)
+        </li>
+        <li class="sidebar-item" data-target="evaluation">
+          <i data-lucide="activity"></i> Evaluation Metrics
+        </li>
+
+        <div class="sidebar-section-title">Scientific Graph & Space</div>
+        <li class="sidebar-item" data-target="graph">
+          <i data-lucide="network"></i> Knowledge Graph
+        </li>
+        <li class="sidebar-item" data-target="embedding">
+          <i data-lucide="orbit"></i> 3D Embeddings
+        </li>
+        <li class="sidebar-item" data-target="compare">
+          <i data-lucide="git-compare"></i> Compare Papers
+        </li>
+        <li class="sidebar-item" data-target="analytics">
+          <i data-lucide="bar-chart-3"></i> Analytics
+        </li>
+
+        <div class="sidebar-section-title">System</div>
+        <li class="sidebar-item" data-target="settings">
+          <i data-lucide="settings"></i> Settings
+        </li>
+        <li class="sidebar-item" id="sidebarPresBtn" style="border: 1px solid rgba(6,182,212,0.3); background: rgba(6,182,212,0.05); margin-top: 0.5rem; border-radius: 8px;">
+          <i data-lucide="presentation" style="color: var(--primary-cyan);"></i> Presentation Mode
+        </li>
+      </ul>
+
+      <div class="sidebar-profile">
+        <div class="avatar">R</div>
+        <div class="profile-info">
+          <span class="profile-name">Researcher Account</span>
+          <span class="profile-role">Academic Plan</span>
+        </div>
+        <i data-lucide="log-out" id="logoutBtn" style="margin-left: auto; cursor: pointer; color: var(--text-muted); width: 18px;"></i>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW AREA -->
+    <main class="app-main" id="mainContent" style="display: none; padding-top: 4.5rem;">
+      
+      <!-- 3. DASHBOARD VIEW -->
+      <section id="view-dashboard" class="page-view">
+        <div class="dashboard-header-row">
+          <div>
+            <h1 class="gradient-text-cyan">Research Workspace</h1>
+            <p>Welcome back, analyze your recent paper uploads and extraction pipelines.</p>
+          </div>
+          <button class="btn btn-primary" onclick="window.appRouter.navigate('upload')">
+            <i data-lucide="plus"></i> Summarize Paper
+          </button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="dashboard-grid">
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Total Papers</span>
+              <div class="stat-icon"><i data-lucide="file-text" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value" id="dashboard-total-papers">2</div>
+            <div class="stat-footer">
+              <i data-lucide="trending-up" style="width: 12px;"></i> +12% this month
+            </div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Extraction Time</span>
+              <div class="stat-icon"><i data-lucide="clock" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value">1.4s</div>
+            <div class="stat-footer">
+              <i data-lucide="trending-down" style="width: 12px;"></i> -18% vs average
+            </div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Average Accuracy</span>
+              <div class="stat-icon"><i data-lucide="check-circle-2" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value" id="dashboard-average-quality">94.0%</div>
+            <div class="stat-footer">
+              <i data-lucide="trending-up" style="width: 12px;"></i> +0.8% update delta
+            </div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>API Quota Used</span>
+              <div class="stat-icon"><i data-lucide="cpu" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value">34.2%</div>
+            <div class="stat-footer" style="color: var(--text-secondary)">
+              65.8k tokens available
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-header-row" style="margin-top: 2rem;">
+          <h3>Your Library</h3>
+          <div class="search-filter-bar" style="width: 400px; margin-bottom: 0;">
+            <div class="search-input-wrapper">
+              <i data-lucide="search"></i>
+              <input type="text" id="librarySearchInput" class="search-input" placeholder="Search papers, authors, tags...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Papers List Grid -->
+        <div class="papers-list-grid" id="dashboardPapersGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Notifications & Processing Queue -->
+        <div class="glass-panel" style="padding: 1.5rem; margin-top: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="bell" style="color: var(--primary-cyan); width: 18px;"></i>
+              System Pipeline Notifications
+            </h4>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">2 active pipelines</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: rgba(255,255,255,0.02); border-radius: 8px;">
+              <span style="font-size: 0.9rem;">Completed extraction on <strong>LoRA: Low-Rank Adaptation...</strong></span>
+              <span style="font-size: 0.8rem; color: var(--success); font-weight: 600;">Success</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: rgba(255,255,255,0.02); border-radius: 8px;">
+              <span style="font-size: 0.9rem;">Vector store indexed <strong>Attention Is All You Need</strong></span>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">10 mins ago</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. PAPER UPLOAD PAGE -->
+      <section id="view-upload" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">Add Research Source</h1>
+          <p>Provide a local academic PDF or import a code repository directly from GitHub to review codebases and publications.</p>
+        </div>
+
+        <!-- Add Source tab selectors -->
+        <div class="insights-tabs-header" style="margin-bottom: 2rem; max-width: 600px;">
+          <button class="insight-tab-btn active" id="uploadTabLocal" data-target-pane="uploadLocalPane">Local PDF File</button>
+          <button class="insight-tab-btn" id="uploadTabGithub" data-target-pane="uploadGithubPane">GitHub Repository</button>
+          <button class="insight-tab-btn" id="uploadTabScholar" data-target-pane="uploadScholarPane">Scholar URL / DOI</button>
+        </div>
+
+        <div class="upload-container-wrapper">
+          <!-- Local PDF Panel -->
+          <div id="uploadLocalPane" class="upload-sub-pane">
+            <div class="glass-panel drag-drop-zone" id="uploadDragDropZone">
+              <div class="upload-icon-pulse">
+                <i data-lucide="upload-cloud"></i>
+              </div>
+              <h3>Drag and Drop Research PDF</h3>
+              <p style="margin: 0.5rem 0 1.5rem;">Maximum file size 35MB. Supports scientific paper formats.</p>
+              <button class="btn btn-primary" onclick="document.getElementById('fileUploadInput').click()">Select Document</button>
+              <input type="file" id="fileUploadInput" style="display:none;" accept=".pdf">
+            </div>
+          </div>
+
+          <!-- GitHub Import Panel -->
+          <div id="uploadGithubPane" class="upload-sub-pane" style="display: none;">
+            <div class="glass-panel" style="padding: 3rem 2rem; text-align: center;">
+              <div class="upload-icon-pulse">
+                <i data-lucide="github" style="color: var(--primary-cyan);"></i>
+              </div>
+              <h3>Review Paper &amp; Code from GitHub</h3>
+              <p style="margin: 0.5rem 0 2rem;">Provide a public GitHub repository link. The pipeline scans README details, model files, and code documentation.</p>
+              
+              <div class="auth-form-group" style="max-width: 500px; margin: 0 auto 1.5rem; text-align: left;">
+                <label for="githubRepoUrl">GitHub Repository Link</label>
+                <div class="auth-input-container">
+                  <i data-lucide="link" style="left: 1rem;"></i>
+                  <input type="url" id="githubRepoUrl" class="auth-input" placeholder="https://github.com/username/repo-name" style="padding-left: 2.75rem;">
+                </div>
+              </div>
+
+              <div class="auth-form-group" style="max-width: 500px; margin: 0 auto 1.5rem; text-align: left;">
+                <label for="githubRepoBranch">Default Branch (Optional)</label>
+                <input type="text" id="githubRepoBranch" class="auth-input" placeholder="main" style="padding-left: 1rem;">
+              </div>
+
+              <button class="btn btn-primary" id="githubScanBtn">Scan &amp; Review Repository</button>
+            </div>
+          </div>
+
+          <!-- Scholar URL / DOI Panel -->
+          <div id="uploadScholarPane" class="upload-sub-pane" style="display: none;">
+            <div class="glass-panel" style="padding: 3rem 2rem; text-align: center;">
+              <div class="upload-icon-pulse">
+                <i data-lucide="globe" style="color: var(--primary-cyan);"></i>
+              </div>
+              <h3>Fetch Paper via URL or DOI</h3>
+              <p style="margin: 0.5rem 0 2rem;">Ingest standard publications from Google Scholar, IEEE, arXiv, or cross-ref registries using direct links or DOI values.</p>
+              
+              <div class="auth-form-group" style="max-width: 500px; margin: 0 auto 1.5rem; text-align: left;">
+                <label for="scholarPaperUrl">Paper URL (PDF Link) or DOI</label>
+                <div class="auth-input-container">
+                  <i data-lucide="link" style="left: 1rem;"></i>
+                  <input type="text" id="scholarPaperUrl" class="auth-input" placeholder="e.g. https://arxiv.org/pdf/1512.03385.pdf or 10.1109/CVPR.2016.90" style="padding-left: 2.75rem;">
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="scholarFetchBtn">Fetch &amp; Ingest Publication</button>
+            </div>
+          </div>
+
+          <!-- Upload Progress Animation Pane -->
+          <div class="glass-panel upload-progress-panel" id="progressPanel">
+            <div class="progress-header-row">
+              <span id="uploadStageTitle">Uploading Document...</span>
+              <span id="uploadProgressPct" style="font-weight: 600; color: var(--primary-cyan);">0%</span>
+            </div>
+            <div class="progress-bg">
+              <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+
+            <!-- Processing Timeline stages -->
+            <div class="processing-timeline">
+              <div class="timeline-step active" id="step-1">
+                <div class="timeline-dot">1</div>
+                <span>Uploading paper source bytes</span>
+              </div>
+              <div class="timeline-step" id="step-2">
+                <div class="timeline-dot">2</div>
+                <span>Isolating structural paragraphs &amp; headings</span>
+              </div>
+              <div class="timeline-step" id="step-3">
+                <div class="timeline-dot">3</div>
+                <span>Scanning layout diagrams &amp; formulas (Vision Scan)</span>
+              </div>
+              <div class="timeline-step" id="step-4">
+                <div class="timeline-dot">4</div>
+                <span>Generating multi-modal vector embeddings</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metadata Extraction Preview Form -->
+          <div class="glass-panel metadata-preview-block" id="metadataPreviewBlock" style="padding: 2rem; display: none;">
+            <h3 style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem; margin-bottom: 1rem; color: var(--primary-cyan);">Extracted Metadata</h3>
+            <div class="metadata-grid">
+              <div class="metadata-item">
+                <label>Document Title</label>
+                <span id="preview-title" class="skeleton-box" style="width: 100%; height: 20px;"></span>
+              </div>
+              <div class="metadata-item">
+                <label>Authors</label>
+                <span id="preview-authors" class="skeleton-box" style="width: 80%; height: 20px;"></span>
+              </div>
+              <div class="metadata-item">
+                <label>Publication DOI / Link</label>
+                <span id="preview-doi" class="skeleton-box" style="width: 60%; height: 20px;"></span>
+              </div>
+              <div class="metadata-item">
+                <label>Category Category</label>
+                <span id="preview-category" class="skeleton-box" style="width: 50%; height: 20px;"></span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+              <button class="btn btn-secondary" onclick="window.location.reload()">Reset</button>
+              <button class="btn btn-primary" id="confirmAnalysisBtn">Open in Workspace</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. RESEARCH PAPER VIEWER PAGE -->
+      <section id="view-viewer" class="page-view">
+        <div class="dashboard-header-row" style="margin-bottom: 1.5rem;">
+          <div>
+            <h1 id="viewer-paper-title">Paper Viewer</h1>
+            <p id="viewer-paper-meta">Select a research paper from the dashboard library to study dynamic highlights.</p>
+          </div>
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="btn btn-secondary" style="background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.3); color: var(--primary-cyan);" id="toggleViewer3dBtn">
+              <i data-lucide="book-open" style="width: 16px;"></i> 3D Book View
+            </button>
+            <button class="btn btn-secondary" onclick="window.appRouter.navigate('compare')">
+              <i data-lucide="git-compare" style="width: 16px;"></i> Compare
+            </button>
+            <button class="btn btn-primary" id="viewFullSummaryBtn">
+              <i data-lucide="sparkles" style="width: 16px;"></i> Deep Summary
+            </button>
+          </div>
+        </div>
+
+        <div class="viewer-layout">
+          <!-- Left side PDF display -->
+          <div class="viewer-left-pdf" id="paperPdfPane">
+            <!-- Populated via Javascript -->
+          </div>
+
+          <!-- Right side Quick Insights Panel -->
+          <div class="viewer-right-insights">
+            <div class="insights-tabs-header">
+              <button class="insight-tab-btn active" data-tab="tab-viewer-abstract">Overview</button>
+              <button class="insight-tab-btn" data-tab="tab-viewer-methodology">Methodology</button>
+              <button class="insight-tab-btn" data-tab="tab-viewer-results">Key Findings</button>
+              <button class="insight-tab-btn" data-tab="tab-viewer-chat">Context Chat</button>
+            </div>
+
+            <!-- Overview tab -->
+            <div class="insight-tab-pane active" id="tab-viewer-abstract">
+              <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0.75rem; color: var(--primary-cyan);">Abstract Tl;dr</h3>
+                <p id="viewer-quick-abstract"></p>
+              </div>
+              <div class="glass-panel" style="padding: 1.5rem;">
+                <h4 style="margin-bottom: 0.75rem; color: var(--primary-purple);">Key Contributions</h4>
+                <ul class="bullet-list" id="viewer-quick-contribs"></ul>
+              </div>
+            </div>
+
+            <!-- Methodology tab -->
+            <div class="insight-tab-pane" id="tab-viewer-methodology">
+              <div class="glass-panel" style="padding: 1.5rem;">
+                <h3 style="margin-bottom: 0.75rem; color: var(--primary-cyan);">Core Methodology</h3>
+                <p id="viewer-quick-methodology"></p>
+              </div>
+            </div>
+
+            <!-- Results tab -->
+            <div class="insight-tab-pane" id="tab-viewer-results">
+              <div class="glass-panel" style="padding: 1.5rem;">
+                <h3 style="margin-bottom: 0.75rem; color: var(--primary-cyan);">Experimental Results</h3>
+                <p id="viewer-quick-results"></p>
+              </div>
+            </div>
+
+            <!-- Chat inside split viewer -->
+            <div class="insight-tab-pane" id="tab-viewer-chat">
+              <div class="glass-panel chat-container" style="height: 100%; min-height: 380px;">
+                <div class="chat-messages" id="viewerChatMessages" style="padding: 1rem; gap: 0.75rem;">
+                  <div class="chat-bubble bubble-ai">
+                    How can I assist you with this research paper? Highlight text or click on figures to query specific details.
+                  </div>
+                </div>
+                <div class="chat-input-area" style="padding: 0.75rem 1rem;">
+                  <input type="text" class="chat-input" id="viewerChatInput" placeholder="Ask questions about this context..." style="padding: 0.5rem 1rem; border-radius: 8px;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom figure catalogue inside Split Viewer -->
+          <div class="bottom-figure-drawer" id="bottomFigureDrawer">
+            <div class="drawer-header" id="drawerHeaderToggle">
+              <div class="drawer-title">
+                <i data-lucide="image" style="width: 16px;"></i>
+                Isolated Diagrams &amp; Graphs (<span id="drawer-fig-count">1</span>)
+              </div>
+              <i data-lucide="chevron-up" id="drawerArrow"></i>
+            </div>
+            <div class="drawer-content" id="drawerFiguresList">
+              <!-- Populated via Javascript -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. AI SUMMARY PAGE -->
+      <section id="view-summary" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">AI Extended Summary</h1>
+          <p>Deep-dive into methodology, equations, and experimental setups with tab-structured insights.</p>
+        </div>
+
+        <div class="insights-tabs-header" style="margin-bottom: 1.5rem;">
+          <button class="insight-tab-btn active" data-tab="pane-sum-abstract">Abstract Summary</button>
+          <button class="insight-tab-btn" data-tab="pane-sum-detailed">Detailed Analysis</button>
+          <button class="insight-tab-btn" data-tab="pane-sum-beginner">Beginner Explanation</button>
+          <button class="insight-tab-btn" data-tab="pane-sum-technical">Technical Summary</button>
+          <button class="insight-tab-btn" data-tab="pane-sum-methods">Methodology</button>
+          <button class="insight-tab-btn" data-tab="pane-sum-results">Results</button>
+          <button class="insight-tab-btn" data-tab="pane-sum-limits">Limitations &amp; Future Work</button>
+        </div>
+
+        <!-- Abstract Summary Pane -->
+        <div class="insight-tab-pane active" id="pane-sum-abstract">
+          <div class="glass-panel" style="padding: 2.5rem;">
+            <h2>General Summary</h2>
+            <p style="margin-top: 1rem; font-size: 1.1rem; line-height: 1.7;" id="sum-text-abstract"></p>
+          </div>
+        </div>
+
+        <!-- Detailed Summary Pane -->
+        <div class="insight-tab-pane" id="pane-sum-detailed">
+          <div id="sum-text-detailed"></div>
+        </div>
+
+        <!-- Beginner Summary Pane -->
+        <div class="insight-tab-pane" id="pane-sum-beginner">
+          <div class="glass-panel" style="padding: 2.5rem; border-left: 4px solid var(--primary-cyan);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+              <i data-lucide="baby" style="color: var(--primary-cyan);"></i>
+              <h3>Simple Analogy Explanation</h3>
+            </div>
+            <p style="font-size: 1.1rem; line-height: 1.8;" id="sum-text-beginner"></p>
+          </div>
+        </div>
+
+        <!-- Technical Summary Pane -->
+        <div class="insight-tab-pane" id="pane-sum-technical">
+          <div class="glass-panel" style="padding: 2.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+              <i data-lucide="terminal" style="color: var(--primary-purple);"></i>
+              <h3>Advanced Technical Formulas &amp; Structures</h3>
+            </div>
+            <p style="font-family: monospace; white-space: pre-line; line-height: 1.8; color: #f1f5f9; font-size: 0.95rem;" id="sum-text-technical"></p>
+          </div>
+        </div>
+
+        <!-- Methodology Pane -->
+        <div class="insight-tab-pane" id="pane-sum-methods">
+          <div class="glass-panel" style="padding: 2.5rem;">
+            <h2>Core Methodology</h2>
+            <p style="margin-top: 1rem; font-size: 1.05rem;" id="sum-text-methodology"></p>
+          </div>
+        </div>
+
+        <!-- Results Pane -->
+        <div class="insight-tab-pane" id="pane-sum-results">
+          <div class="glass-panel" style="padding: 2.5rem;">
+            <h2>Experimental Metrics</h2>
+            <p style="margin-top: 1rem; font-size: 1.05rem;" id="sum-text-results"></p>
+          </div>
+        </div>
+
+        <!-- Limitations & Future Work Pane -->
+        <div class="insight-tab-pane" id="pane-sum-limits">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="glass-panel" style="padding: 2rem;">
+              <h3 style="color: var(--error); margin-bottom: 1rem;">Limitations</h3>
+              <ul class="bullet-list" id="sum-text-limitations"></ul>
+            </div>
+            <div class="glass-panel" style="padding: 2rem;">
+              <h3 style="color: var(--success); margin-bottom: 1rem;">Future Scope</h3>
+              <p id="sum-text-future"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. FIGURE ANALYSIS PAGE -->
+      <section id="view-figures" class="page-view">
+        <div class="dashboard-header-row" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h1 class="gradient-text">Extracted Diagram Analysis</h1>
+            <p>Browse isolated image diagrams, architectural charts, and layout diagrams from research papers.</p>
+          </div>
+          
+          <!-- CLIP Multimodal Query Alignment Panel -->
+          <div class="glass-panel" style="padding: 1rem 1.5rem; display: flex; gap: 1rem; align-items: center; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="width: 100%;">
+              <label for="clipQueryInput" style="font-size: 0.75rem; color: var(--primary-cyan); font-weight: bold; display: flex; align-items: center; gap: 4px; margin-bottom: 0.5rem;">
+                <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i>
+                CLIP CROSS-MODAL ALIGNMENT (TEXT-TO-IMAGE)
+              </label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="clipQueryInput" class="filter-select" placeholder="Enter search concept (e.g. attention, network block)..." style="width: 100%; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.25); padding: 0.5rem 0.75rem; font-size: 0.85rem; border-radius: 6px; color: white;">
+                <button class="btn btn-primary" id="runClipMatchBtn" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                  <i data-lucide="activity" style="width: 14px; height: 14px;"></i> Align Vectors
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="figures-grid" id="figAnalysisGrid">
+          <!-- Populated Dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- 8. AI CHAT PAGE -->
+      <section id="view-chat" class="page-view">
+        <div class="chat-container glass-panel">
+          <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="logo-icon" style="width: 38px; height: 38px;">
+                <i data-lucide="sparkles" style="color: white; width: 18px;"></i>
+              </div>
+              <div>
+                <h3 style="font-size: 1.05rem;">MultiModal Conversational Agent</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Gemini 3.5 Flash Model Integration</p>
+              </div>
+            </div>
+            <button class="btn btn-secondary" id="clearChatBtn" style="padding: 0.5rem 1rem; border-radius: 8px;">Clear Thread</button>
+          </div>
+
+          <!-- Messages display area -->
+          <div class="chat-messages" id="mainChatMessages">
+            <div class="chat-bubble bubble-ai">
+              Welcome to the conversational assistant. Pose a query regarding models like the Transformer or adaptations like LoRA to review specific data points.
+            </div>
+          </div>
+
+          <!-- Dynamic Questions Chips -->
+          <div class="chat-suggestions" id="chatSuggestionsWrapper">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Chat entry block -->
+          <div class="chat-input-area">
+            <input type="text" class="chat-input" id="mainChatInput" placeholder="Pose a query regarding models or datasets...">
+            <button class="btn btn-primary" id="mainChatSendBtn" style="padding: 0.85rem 1.5rem; border-radius: 12px;">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. PAPER COMPARISON PAGE -->
+      <section id="view-compare" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">Compare Research Papers</h1>
+          <p>Side-by-side comparative analysis of datasets, parameter counts, architecture performance, and methodologies.</p>
+        </div>
+
+        <div class="comparison-layout">
+          <div class="compare-selectors-row">
+            <div class="glass-panel compare-box">
+              <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Select Document A</label>
+              <select id="compareSelectA">
+                <option value="transformer-2017">Attention Is All You Need (Vaswani et al., 2017)</option>
+              </select>
+            </div>
+            
+            <div style="font-weight: bold; color: var(--primary-purple); font-size: 1.25rem;">VS</div>
+            
+            <div class="glass-panel compare-box">
+              <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Select Document B</label>
+              <select id="compareSelectB">
+                <option value="lora-2021">LoRA: Low-Rank Adaptation... (Hu et al., 2021)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Direct Double PDF Upload and Compare Option -->
+          <div class="compare-upload-section glass-panel" style="margin-top: 1.5rem; padding: 1.5rem; text-align: center; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; background: rgba(15, 23, 42, 0.3);">
+            <h3 style="color: var(--primary-cyan); margin-bottom: 1rem; font-size: 1rem; font-weight: 600;">Or, Upload and Compare Two Custom PDF Papers</h3>
+            <div style="display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 1rem;">
+              <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; align-items: center;">
+                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Upload Document A</label>
+                <input type="file" id="compareUploadA" accept=".pdf" style="display: none;">
+                <button class="btn btn-outline" onclick="document.getElementById('compareUploadA').click()" id="btnCompareUploadA" style="width: 100%; max-width: 200px; padding: 0.6rem 1rem; font-size: 0.85rem; border-radius: 8px;">Choose File A</button>
+                <div id="compareUploadAName" style="font-size: 0.75rem; color: var(--success); margin-top: 0.5rem; word-break: break-all; max-width: 200px; display: none;"></div>
+              </div>
+              <div style="font-weight: bold; color: var(--primary-purple); font-size: 1rem;">AND</div>
+              <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; align-items: center;">
+                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Upload Document B</label>
+                <input type="file" id="compareUploadB" accept=".pdf" style="display: none;">
+                <button class="btn btn-outline" onclick="document.getElementById('compareUploadB').click()" id="btnCompareUploadB" style="width: 100%; max-width: 200px; padding: 0.6rem 1rem; font-size: 0.85rem; border-radius: 8px;">Choose File B</button>
+                <div id="compareUploadBName" style="font-size: 0.75rem; color: var(--success); margin-top: 0.5rem; word-break: break-all; max-width: 200px; display: none;"></div>
+              </div>
+            </div>
+            <div style="margin-top: 1.5rem;">
+              <button class="btn btn-primary" id="btnRunCompareUploads" style="padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; display: none;">Analyze &amp; Compare Side-by-Side</button>
+            </div>
+          </div>
+
+
+          <!-- Comparative metrics grid with dynamic charts -->
+          <div class="comparison-charts-grid">
+            <div class="glass-panel chart-card">
+              <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">Parameter Count (Millions)</h3>
+              <canvas id="chartParamsCompare"></canvas>
+            </div>
+            <div class="glass-panel chart-card">
+              <h3 style="margin-bottom: 1.5rem; color: var(--primary-purple);">Dataset Size &amp; Accuracy Metrics</h3>
+              <canvas id="chartMetricsCompare"></canvas>
+            </div>
+          </div>
+
+          <!-- Comparison parameters table -->
+          <div class="glass-panel" style="padding: 2rem;">
+            <h3>Detailed Comparison Summary</h3>
+            <div class="comparison-table-wrapper">
+              <table class="compare-table">
+                <thead>
+                  <tr>
+                    <th>Characteristic</th>
+                    <th id="compTableHeadA">Attention Is All You Need</th>
+                    <th id="compTableHeadB">LoRA: Low-Rank Adaptation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight: 600;">Research Domain</td>
+                    <td id="comp-domain-a">Natural Language Processing</td>
+                    <td id="comp-domain-b">Model Optimization</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600;">Trainable Parameters</td>
+                    <td id="comp-params-a">65.0M</td>
+                    <td id="comp-params-b">0.28M (Frozen base weights)</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600;">Training Dataset Volume</td>
+                    <td id="comp-dataset-a">36.0 GB</td>
+                    <td id="comp-dataset-b">18.0 GB</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600;">Method Overlap</td>
+                    <td id="comp-method-a">Direct Self-Attention matrix stack</td>
+                    <td id="comp-method-b">Re-parameterized weight updates</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600;">Core Findings</td>
+                    <td id="comp-findings-a">Multi-head attention replaces recurrence.</td>
+                    <td id="comp-findings-b">Adapters match full tuning accuracy at 0.01% parameters.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. KNOWLEDGE GRAPH VIEW -->
+      <section id="view-graph" class="page-view">
+        <div style="margin-bottom: 1.5rem;">
+          <h1 class="gradient-text">Interactive Knowledge Map</h1>
+          <p>Drag nodes to review linkages. Nodes represent Authors, Models, Methods, and Datasets in the vector index.</p>
+        </div>
+
+        <!-- Graph Filters row -->
+        <div class="search-filter-bar" style="margin-bottom: 1.5rem; max-width: 650px;">
+          <div class="search-input-wrapper">
+            <i data-lucide="search"></i>
+            <input type="text" id="graphSearchInput" class="search-input" placeholder="Search nodes (e.g. He, Vaswani, COCO)...">
+          </div>
+          <select id="graphFilterSelect" class="filter-select" style="min-width: 160px; background: var(--panel-glass); color: white; border: 1px solid var(--border-glass); border-radius: 12px; padding: 0 1rem; outline: none; cursor: pointer;">
+            <option value="all">All Node Types</option>
+            <option value="author">Authors</option>
+            <option value="model">Models / Papers</option>
+            <option value="method">Methods</option>
+            <option value="dataset">Datasets</option>
+          </select>
+        </div>
+
+        <div class="graph-viewport-wrapper">
+          <canvas class="graph-canvas" id="graphCanvas"></canvas>
+          
+          <div class="graph-legend glass-panel">
+            <div class="legend-item">
+              <span class="legend-color legend-author"></span>
+              <span>Authors</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color legend-model"></span>
+              <span>Models / Publications</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color legend-method"></span>
+              <span>Core Methods</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color legend-dataset"></span>
+              <span>Datasets</span>
+            </div>
+          </div>
+
+          <div class="graph-instructions">
+            <span>Scroll to zoom &bull; Click and Drag nodes to explore linkages</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11. SETTINGS VIEW -->
+      <section id="view-settings" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">Configuration Space</h1>
+          <p>Modify UI layouts, model selectors, and local vector storage settings.</p>
+        </div>
+
+        <div class="settings-grid">
+          <!-- settings sidebar -->
+          <div class="settings-nav-sidebar">
+            <span class="settings-nav-item active" data-pane="set-profile">User Profile</span>
+            <span class="settings-nav-item" data-pane="set-theme">Theme &amp; Design</span>
+            <span class="settings-nav-item" data-pane="set-model">AI Model Selection</span>
+            <span class="settings-nav-item" data-pane="set-storage">Vector Storage</span>
+          </div>
+
+          <!-- settings content -->
+          <div class="glass-panel" style="padding: 2.5rem;">
+            <!-- Profile settings -->
+            <div class="settings-pane active" id="set-profile">
+              <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">User Profile</h3>
+              <div class="auth-form-group" style="max-width: 400px;">
+                <label>Academic Identity Name</label>
+                <input type="text" class="auth-input" value="Researcher Account" style="padding-left: 1rem;">
+              </div>
+              <div class="auth-form-group" style="max-width: 400px;">
+                <label>Registered Institution Email</label>
+                <input type="email" class="auth-input" value="researcher@academic.edu" style="padding-left: 1rem;" disabled>
+              </div>
+              <button class="btn btn-primary" style="margin-top: 1rem;">Update Profile Settings</button>
+            </div>
+
+            <!-- Theme settings -->
+            <div class="settings-pane" id="set-theme">
+              <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">Theme Options</h3>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <h4>Default Dark Mode</h4>
+                  <p>Keeps the premium neon deep color palette active.</p>
+                </div>
+                <label class="switch-control">
+                  <input type="checkbox" checked disabled>
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <h4>Glassmorphic Frosted Panels</h4>
+                  <p>Toggle high-blur glass filters.</p>
+                </div>
+                <label class="switch-control">
+                  <input type="checkbox" checked id="toggleGlassmorphism">
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Model settings -->
+            <div class="settings-pane" id="set-model">
+              <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">AI Model Configuration</h3>
+              
+              <div class="auth-form-group" style="max-width: 500px; margin-bottom: 1.5rem;">
+                <label for="geminiApiKeyInput">Google Gemini API Key (Stored Locally)</label>
+                <div class="auth-input-container" style="margin-top: 0.5rem;">
+                  <i data-lucide="key" style="left: 1rem;"></i>
+                  <input type="password" id="geminiApiKeyInput" class="auth-input" placeholder="AIzaSy..." style="padding-left: 2.75rem;">
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.4;">
+                  Get a free API Key from <a href="https://aistudio.google.com/" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">Google AI Studio</a>. Keys are stored locally in your browser.
+                </p>
+              </div>
+
+              <div class="auth-form-group" style="max-width: 500px;">
+                <label>Default Vision Parser Model</label>
+                <select class="filter-select" id="modelSelectDropdown" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 0.5rem;">
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast, Recommended)</option>
+                  <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Context Reasoning)</option>
+                </select>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <h4>Stream Chat Responses</h4>
+                  <p>Displays characters sequentially as they are generated.</p>
+                </div>
+                <label class="switch-control">
+                  <input type="checkbox" checked id="toggleStreaming">
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Storage settings -->
+            <div class="settings-pane" id="set-storage">
+              <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">Local &amp; Vector Storage</h3>
+              <div style="margin-bottom: 1.5rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                  <span>Indexed Cache Capacity</span>
+                  <span>14.2 MB / 100 MB</span>
+                </div>
+                <div class="progress-bg" style="height: 8px;">
+                  <div class="progress-bar-fill" style="width: 14.2%; background: var(--grad-purple-cyan);"></div>
+                </div>
+              </div>
+              <button class="btn btn-outline" style="border-color: var(--error); color: var(--error);">Purge Library Index Cache</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLIP ALIGNMENT WORKSPACE VIEW -->
+      <section id="view-clip" class="page-view">
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h1 class="gradient-text">CLIP Cross-Modal Workspace</h1>
+            <p>Test, validate, and explore multimodal summarization using CLIP-based text-to-image similarity matching.</p>
+          </div>
+          <button class="btn btn-primary" id="btnRunClipSummarize" style="display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="sparkles"></i> Synthesize Multimodal Summary
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 2rem;" class="clip-workspace-grid">
+          
+          <!-- Parameters & Matrix Heatmap -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Controls panel -->
+            <div class="glass-panel" style="padding: 1.5rem;">
+              <h3 style="margin-bottom: 1.25rem; color: var(--primary-cyan); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="sliders" style="width: 16px;"></i> Hyperparameter Calibration
+              </h3>
+              
+              <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                  <span>CLIP Cosine Similarity Cut-off Threshold (τ)</span>
+                  <span id="clipThresholdVal" style="color: var(--primary-cyan); font-weight: bold; font-family: monospace;">0.65</span>
+                </div>
+                <input type="range" id="clipThresholdSlider" min="0.30" max="0.95" step="0.05" value="0.65" style="width: 100%; height: 6px; border-radius: 3px; accent-color: var(--primary-cyan); cursor: pointer;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Adjust the threshold to filter out low-confidence image-text vector pairs.</p>
+              </div>
+
+              <div style="display: flex; gap: 1.5rem; border-top: 1px solid var(--border-glass); padding-top: 1rem; font-size: 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--grad-purple-cyan); display: inline-block;"></span>
+                  <span>Active CLIP Pairs: <strong id="clipActivePairsCount">0</strong></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="info" style="width: 14px; color: var(--primary-cyan);"></i>
+                  <span>Click heatmap cells to compare details</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Heatmap Matrix Panel -->
+            <div class="glass-panel" style="padding: 1.5rem;">
+              <h3 style="margin-bottom: 1.25rem; color: var(--primary-purple); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="grid" style="width: 16px;"></i> Cross-Modal Embedding Heatmap (Text vs. Image)
+              </h3>
+              <div style="overflow-x: auto; width: 100%;">
+                <table class="clip-heatmap-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-glass);" id="clip-heatmap-header-row">
+                      <th style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Text Segment (Source)</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center; color: var(--text-muted);">Figures</th>
+                    </tr>
+                  </thead>
+                  <tbody id="clipHeatmapBody">
+                    <!-- Populated via Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Summarizer Pane -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Output Summary -->
+            <div class="glass-panel" style="padding: 1.5rem; min-height: 480px; display: flex; flex-direction: column;">
+              <h3 style="margin-bottom: 1.25rem; color: var(--primary-cyan); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="file-text" style="width: 16px;"></i> CLIP-Guided Multimodal Synthesis
+              </h3>
+              
+              <div id="clipSummarizerPlaceholder" style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; color: var(--text-muted);">
+                <i data-lucide="binary" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Click "Synthesize Multimodal Summary" to construct a paper synthesis combining high-similarity text segments and aligned vision assets.</p>
+              </div>
+
+              <div id="clipSummarizerResults" style="display: none; flex-grow: 1;">
+                <!-- Summary Text Content -->
+                <div class="glass-panel" style="background: rgba(0,0,0,0.2); padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+                  <h4 style="margin-bottom: 0.5rem; color: #fff;">Cross-Modal Context Summary</h4>
+                  <p id="clipSummaryAbstractText"></p>
+                </div>
+                
+                <!-- Dynamic Image-Text Block listings -->
+                <h4 style="margin-bottom: 1rem; color: var(--primary-purple); font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Validated Image-Text Pair Summaries</h4>
+                <div id="clipSummaryLayoutBlocks" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                  <!-- Populated via Javascript -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Comparative Detail Modal/Overlay -->
+        <div id="clipDetailOverlay" class="zoom-overlay" style="display: none; align-items: center; justify-content: center;">
+          <div class="glass-panel" style="max-width: 800px; width: 90%; padding: 2rem; position: relative;">
+            <button class="btn-close-zoom" id="closeClipDetailBtn" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: white; cursor: pointer;">
+              <i data-lucide="x"></i>
+            </button>
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);" id="clipModalTitle">Cross-Modal Detail Comparison</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem;" class="clip-modal-grid">
+              <div id="clipModalFigureWrapper" class="figure-svg-wrapper" style="margin: 0; min-height: 200px;">
+                <!-- SVG content -->
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;">Source Text Segment</span>
+                  <p id="clipModalText" style="font-size: 0.9rem; line-height: 1.5; margin-top: 0.25rem;"></p>
+                </div>
+                <div style="border-top: 1px solid var(--border-glass); padding-top: 1rem;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;">AI Cosine Similarity Score</span>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-top: 0.25rem;">
+                    <div class="progress-bg" style="height: 10px; flex-grow: 1; margin: 0;">
+                      <div class="progress-bar-fill" id="clipModalProgressBar" style="width: 0%; background: var(--grad-purple-cyan);"></div>
+                    </div>
+                    <strong id="clipModalScoreText" style="font-size: 1rem; color: var(--primary-cyan); min-width: 50px; text-align: right;">0.00</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12. ANALYTICS DASHBOARD VIEW -->
+      <section id="view-analytics" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">Academic Analytics Dashboard</h1>
+          <p>Review summary accuracy logs, indexing durations, and categorized research domains.</p>
+        </div>
+
+        <!-- Analytics Grid Stats -->
+        <div class="dashboard-grid" style="margin-bottom: 2.5rem;">
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Publications Indexed</span>
+              <div class="stat-icon"><i data-lucide="archive" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value" id="analytics-total-papers">2</div>
+            <div class="stat-footer" style="color: var(--primary-cyan);">
+              No active uploads queued
+            </div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Avg Vector Scan Speed</span>
+              <div class="stat-icon"><i data-lucide="zap" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value">1.12s</div>
+            <div class="stat-footer">
+              <i data-lucide="trending-up" style="width: 12px;"></i> +15% parsing velocity
+            </div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Summary Quality Index</span>
+              <div class="stat-icon"><i data-lucide="star" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value" id="analytics-average-quality">94.0%</div>
+            <div class="stat-footer" style="color: var(--success);">
+              High accuracy alignment
+            </div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-glow"></div>
+            <div class="stat-header">
+              <span>Research Topics</span>
+              <div class="stat-icon"><i data-lucide="tag" style="width: 16px;"></i></div>
+            </div>
+            <div class="stat-value">4</div>
+            <div class="stat-footer" style="color: var(--text-secondary);">
+              Natural Language, Tuning
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Charts Grid -->
+        <div class="comparison-charts-grid" style="margin-top: 2rem;">
+          <div class="glass-panel chart-card">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">Monthly Document Upload Activity</h3>
+            <canvas id="chartMonthlyUploads"></canvas>
+          </div>
+          <div class="glass-panel chart-card">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-purple);">Distribution of Research Domains</h3>
+            <canvas id="chartResearchDomains"></canvas>
+          </div>
+        </div>
+
+        <div class="comparison-charts-grid" style="margin-top: 2rem;">
+          <div class="glass-panel chart-card">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-cyan);">Summary Extraction Accuracy (%)</h3>
+            <canvas id="chartSummaryAccuracy"></canvas>
+          </div>
+          <div class="glass-panel chart-card">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-purple);">Parsing Pipeline Timings (Seconds)</h3>
+            <canvas id="chartPipelineTiming"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13. CONFERENCE DOSSIER VIEW -->
+      <section id="view-academic" class="page-view">
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 class="gradient-text">Conference Publication Dossier</h1>
+            <p>Generate high-fidelity LaTeX-styled conference reviews ready for academic compilation.</p>
+          </div>
+          <button class="btn btn-primary" id="exportDossierPdfBtn"><i data-lucide="download"></i> Export PDF</button>
+        </div>
+
+        <div class="insights-tabs-header" style="margin-bottom: 2rem; max-width: 600px;">
+          <button class="insight-tab-btn active" id="dossierTabMeta" data-pane="dossierMetaPane">Abstract &amp; Motivation</button>
+          <button class="insight-tab-btn" id="dossierTabMethod" data-pane="dossierMethodPane">Methodology &amp; Gap</button>
+          <button class="insight-tab-btn" id="dossierTabAblation" data-pane="dossierAblationPane">Ablation Studies</button>
+          <button class="insight-tab-btn" id="dossierTabRefs" data-pane="dossierRefsPane">References</button>
+        </div>
+
+        <div class="dossier-paper-container">
+          <div id="dossierMetaPane" class="dossier-tab-pane">
+            <h2 class="dossier-title" id="dossier-paper-title">Deep Residual Learning for Image Recognition</h2>
+            <div class="dossier-authors" id="dossier-paper-authors">Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun</div>
+            <div class="dossier-affiliation">Microsoft Research, Redmond, WA, USA</div>
+            
+            <div class="dossier-abstract-block">
+              <strong>Abstract</strong>&mdash;<span id="dossier-paper-abstract">Deeper neural networks are more difficult to train. We present a residual learning framework to ease the training of networks that are substantially deeper than those previously used. We explicitly reformulate the layers as learning residual functions with reference to the layer inputs, instead of learning unreferenced functions.</span>
+            </div>
+
+            <h3 class="dossier-section-title">1. Research Motivation &amp; Background</h3>
+            <p class="dossier-paragraph">
+              In recent years, deep convolutional neural networks have led to a series of breakthroughs for image classification. Deep networks naturally integrate low/mid/high-level features and classifiers in an end-to-end multi-layer fashion, and the "levels" of features can be enriched by the number of stacked layers (depth).
+            </p>
+            <p class="dossier-paragraph" id="dossier-motivation-dynamic">
+              However, network depth is of crucial importance, and a key problem is: <em>Is learning better networks as easy as stacking more layers?</em> When deeper networks are able to start converging, a degradation problem has been exposed: with the network depth increasing, accuracy gets saturated and then degrades rapidly. Stacking more layers leads to higher training error.
+            </p>
+          </div>
+
+          <div id="dossierMethodPane" class="dossier-tab-pane" style="display: none;">
+            <h3 class="dossier-section-title">2. Proposed Methodology</h3>
+            <p class="dossier-paragraph" id="dossier-math-dynamic">
+              Instead of hoping each few stacked layers directly fit a desired underlying mapping $\mathcal{H}(x)$, we explicitly let these layers fit a residual mapping $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is reformulated into $\mathcal{F}(x) + x$. We hypothesize that it is easier to optimize the residual mapping than to optimize the original, unreferenced mapping.
+            </p>
+            <div class="dossier-figure-box">
+              <div id="dossierFigureContainer"></div>
+              <div class="dossier-caption" id="dossierFigureCaption">Figure 1: Deep residual learning: a building block.</div>
+            </div>
+            
+            <h3 class="dossier-section-title">3. Addressed Research Gap</h3>
+            <p class="dossier-paragraph" id="dossier-gap-dynamic">
+              Traditional convolutional networks suffer from extreme performance degradation due to vanishing gradients during backpropagation. Identity shortcut mappings directly bypass parameters, preserving feature coordinates across depth stacks without parameter additions.
+            </p>
+          </div>
+
+          <div id="dossierAblationPane" class="dossier-tab-pane" style="display: none;">
+            <h3 class="dossier-section-title">4. Experimental Ablation Studies</h3>
+            <p class="dossier-paragraph">
+              We perform comprehensive ablation runs on ImageNet datasets to examine the influence of skip shortcut connections. We compare plain networks (stacking layers without shortcuts) against deep residual networks of identical parameters.
+            </p>
+            <div style="margin: 1.5rem 0;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" id="dossierAblationTable">
+                <thead>
+                  <tr style="border-bottom: 2px solid #111;">
+                    <th style="padding: 0.5rem; text-align: left;">Architecture</th>
+                    <th style="padding: 0.5rem; text-align: center;">Top-1 Error (%)</th>
+                    <th style="padding: 0.5rem; text-align: center;">Top-5 Error (%)</th>
+                    <th style="padding: 0.5rem; text-align: center;">Params (M)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 0.5rem;">Plain-34</td>
+                    <td style="padding: 0.5rem; text-align: center;">28.54</td>
+                    <td style="padding: 0.5rem; text-align: center;">10.12</td>
+                    <td style="padding: 0.5rem; text-align: center;">21.6</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 0.5rem;">ResNet-34 (Ours)</td>
+                    <td style="padding: 0.5rem; text-align: center;">25.03</td>
+                    <td style="padding: 0.5rem; text-align: center;">7.76</td>
+                    <td style="padding: 0.5rem; text-align: center;">21.6</td>
+                  </tr>
+                  <tr style="border-bottom: 2px solid #111;">
+                    <td style="padding: 0.5rem;">ResNet-152 (Ours)</td>
+                    <td style="padding: 0.5rem; text-align: center;">21.43</td>
+                    <td style="padding: 0.5rem; text-align: center;">5.71</td>
+                    <td style="padding: 0.5rem; text-align: center;">60.2</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="dossier-paragraph">
+              Our ResNet models converge much faster and achieve significantly lower error, verifying that identity shortcuts resolve degradation issues at scale.
+            </p>
+          </div>
+
+          <div id="dossierRefsPane" class="dossier-tab-pane" style="display: none;">
+            <h3 class="dossier-section-title">References &amp; Bibliography</h3>
+            <ol style="margin-left: 2rem; font-size: 0.95rem; line-height: 1.7;" id="dossierReferencesList">
+              <li>A. Vaswani, N. Shazeer, N. Parmar, et al. "Attention Is All You Need." <em>Neural Information Processing Systems (NeurIPS)</em>, 2017.</li>
+              <li>K. He, X. Zhang, S. Ren, J. Sun. "Deep Residual Learning for Image Recognition." <em>IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</em>, 2016.</li>
+              <li>E. Hu, Y. Shen, P. Wallis, et al. "LoRA: Low-Rank Adaptation of Large Language Models." <em>International Conference on Learning Representations (ICLR)</em>, 2022.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14. EXPLAINABLE AI (XAI) VIEW -->
+      <section id="view-xai" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">Explainable AI (XAI) Diagnostics</h1>
+          <p>Inspect attention routing, token evidence mappings, and model reasoning diagnostics.</p>
+        </div>
+
+        <div class="dashboard-grid" style="margin-bottom: 2rem;">
+          <div class="glass-panel confidence-gauge-container">
+            <h3 style="color: var(--primary-cyan); margin-bottom: 1rem;">Summary Confidence</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; color: #fff;" id="xaiConfidencePct">96.8%</div>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Entropy Uncertainty threshold matched</div>
+          </div>
+          <div class="glass-panel confidence-gauge-container">
+            <h3 style="color: var(--primary-purple); margin-bottom: 1rem;">Semantic Density</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; color: #fff;" id="xaiSemanticDensity">0.84</div>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Information per token ratio</div>
+          </div>
+          <div class="glass-panel confidence-gauge-container">
+            <h3 style="color: #eab308; margin-bottom: 1rem;">Evidence Count</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; color: #fff;" id="xaiEvidenceCount">12 Chunks</div>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Verified source citations</div>
+          </div>
+        </div>
+
+        <div class="comparison-charts-grid">
+          <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="color: var(--primary-cyan); margin-bottom: 1.5rem;">Attention Activation Heatmap</h3>
+            <div style="height: 300px; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center;" id="xaiAttentionGrid">
+              <!-- Render dynamic attention bar overlays -->
+            </div>
+          </div>
+          <div class="glass-panel" style="padding: 1.5rem; overflow-y: auto;">
+            <h3 style="color: var(--primary-purple); margin-bottom: 1.5rem;">Retrieved Text Chunks</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;" id="xaiRetrievedList">
+              <!-- Render retrieved spans -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15. EVALUATION METRICS VIEW -->
+      <section id="view-evaluation" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">Model Performance Evaluation</h1>
+          <p>Compare ROUGE, BLEU, and parameter footprint statistics across baseline methods.</p>
+        </div>
+
+        <div class="comparison-charts-grid" style="margin-bottom: 2.5rem;">
+          <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="color: var(--primary-cyan); margin-bottom: 1.5rem;">Publication-Quality Score Comparison</h3>
+            <canvas id="evalRadarChart" style="max-height: 350px;"></canvas>
+          </div>
+          <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="color: var(--primary-purple); margin-bottom: 1.5rem;">Inference Time vs. GPU Footprint</h3>
+            <canvas id="evalScatterChart" style="max-height: 350px;"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding: 2rem;">
+          <h3 style="color: var(--text-primary); margin-bottom: 1.5rem;">Standard Scientific Metric Comparison Table</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(255,255,255,0.1); color: var(--text-secondary);">
+                  <th style="padding: 0.75rem;">Model Variant</th>
+                  <th style="padding: 0.75rem;">ROUGE-1</th>
+                  <th style="padding: 0.75rem;">ROUGE-2</th>
+                  <th style="padding: 0.75rem;">BLEU</th>
+                  <th style="padding: 0.75rem;">METEOR</th>
+                  <th style="padding: 0.75rem;">Inference latency</th>
+                  <th style="padding: 0.75rem;">Parameters</th>
+                </tr>
+              </thead>
+              <tbody id="evaluationMetricsTableBody">
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.75rem; font-weight: bold;">SciBERT + RAG</td>
+                  <td style="padding: 0.75rem;">82.34</td>
+                  <td style="padding: 0.75rem;">44.12</td>
+                  <td style="padding: 0.75rem;">24.50</td>
+                  <td style="padding: 0.75rem;">38.10</td>
+                  <td style="padding: 0.75rem; color: var(--success);">140ms</td>
+                  <td style="padding: 0.75rem;">110M</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.75rem; font-weight: bold;">Llama-3-8B (Fine-tuned)</td>
+                  <td style="padding: 0.75rem;">88.12</td>
+                  <td style="padding: 0.75rem;">51.34</td>
+                  <td style="padding: 0.75rem;">26.12</td>
+                  <td style="padding: 0.75rem;">42.50</td>
+                  <td style="padding: 0.75rem; color: var(--error);">950ms</td>
+                  <td style="padding: 0.75rem;">8B</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.75rem; font-weight: bold; color: var(--primary-cyan);">Gemini-1.5 (Zero-shot)</td>
+                  <td style="padding: 0.75rem;">92.50</td>
+                  <td style="padding: 0.75rem;">58.45</td>
+                  <td style="padding: 0.75rem;">28.70</td>
+                  <td style="padding: 0.75rem;">46.10</td>
+                  <td style="padding: 0.75rem; color: var(--warning);">420ms</td>
+                  <td style="padding: 0.75rem;">Proprietary</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16. 3D VECTOR EMBEDDING SPACE VIEW -->
+      <section id="view-embedding" class="page-view">
+        <div style="margin-bottom: 2rem;">
+          <h1 class="gradient-text">3D Vector Embedding Space</h1>
+          <p>Drill down into semantic space groupings using interactive force-directed projection clusters.</p>
+        </div>
+
+        <div class="comparison-charts-grid">
+          <div class="embedding-3d-viewport" id="embedding3dContainer">
+            <canvas id="embeddingCanvas3d" style="width: 100%; height: 100%; display: block;"></canvas>
+            
+            <div class="embedding-cluster-legend">
+              <h4 style="margin: 0; color: white; font-size: 0.8rem;">Vector Clusters</h4>
+              <div class="legend-item">
+                <div class="legend-color" style="background: var(--primary-cyan);"></div>
+                <span>Vision Modality (CLIP)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: var(--primary-purple);"></div>
+                <span>NLP Transformer tokens</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: var(--success);"></div>
+                <span>Parameter Optimizers (LoRA)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #eab308;"></div>
+                <span>System Benchmarks</span>
+              </div>
+            </div>
+            
+            <div style="position: absolute; bottom: 1rem; right: 1rem; display: flex; gap: 0.5rem; z-index: 10;">
+              <button class="pres-nav-btn" style="padding: 0.5rem 1rem;" id="btnRotateEmbedding"><i data-lucide="rotate-cw"></i> Rotate</button>
+              <button class="pres-nav-btn" style="padding: 0.5rem 1rem;" id="btnResetEmbedding"><i data-lucide="refresh-cw"></i> Reset</button>
+            </div>
+          </div>
+
+          <div class="glass-panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 style="color: var(--primary-cyan); margin-bottom: 1rem;" id="embedClusterTitle">Cluster Analysis</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;" id="embedClusterDesc">
+                Click any floating point cluster in the 3D projection view on the left to evaluate spatial cosine distances and query nearest neighbors.
+              </p>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                <span style="color: var(--text-muted);">Cluster ID</span>
+                <span style="font-weight: bold; color: white;" id="embedClusterId">N/A</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                <span style="color: var(--text-muted);">Cosine Cluster Variance</span>
+                <span style="font-weight: bold; color: var(--success);" id="embedClusterVariance">N/A</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span style="color: var(--text-muted);">Total Vectors</span>
+                <span style="font-weight: bold; color: white;" id="embedClusterSize">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FLOATING AI CHAT CONTEXT PANEL -->
+    <button class="floating-chat-trigger" id="floatingChatTriggerBtn" style="display: none;">
+      <i data-lucide="message-square"></i>
+    </button>
+
+    <div class="glass-panel floating-chat-window" id="floatingChatPane">
+      <div class="chat-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="sparkles" style="color: var(--primary-cyan); width: 16px;"></i>
+          <span style="font-weight: 700; font-size: 0.9rem;">Workspace AI Copilot</span>
+        </div>
+        <i data-lucide="x" style="cursor: pointer; width: 16px;" id="closeFloatingChatBtn"></i>
+      </div>
+      <div class="chat-messages" id="floatingChatMessages" style="padding: 1rem; font-size: 0.85rem;">
+        <div class="chat-bubble bubble-ai">
+          Hi! I can scan your current selected paper, explain highlighted formulas, or provide section context.
+        </div>
+      </div>
+      <div class="chat-input-area" style="padding: 0.75rem 1rem;">
+        <input type="text" class="chat-input" id="floatingChatInput" placeholder="Pose a quick question..." style="font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px;">
+      </div>
+    </div>
+
+    <!-- FORGOT PASSWORD DIALOG MODAL -->
+    <div class="forgot-password-modal" id="forgotPassModal">
+      <div class="glass-panel forgot-modal-content">
+        <h3 style="margin-bottom: 1rem; color: var(--primary-cyan);">Reset Passcode</h3>
+        <p style="font-size: 0.85rem; margin-bottom: 1.5rem;">Provide your registered institutional email to request a reset link.</p>
+        <div class="auth-form-group">
+          <label>Email Address</label>
+          <input type="email" class="auth-input" placeholder="name@domain.com" style="padding-left: 1rem;" id="forgotPassEmail">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button class="btn btn-secondary" style="padding: 0.5rem 1rem; border-radius: 8px;" id="closeForgotPass">Cancel</button>
+          <button class="btn btn-primary" style="padding: 0.5rem 1rem; border-radius: 8px;" id="sendResetBtn">Request Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAGRAM FULL-SCREEN ZOOM OVERLAY -->
+    <div class="zoom-overlay" id="zoomOverlay">
+      <div class="zoom-content-box">
+        <button class="zoom-close-btn" id="closeZoomBtn">&times;</button>
+        <div id="zoomContainer"></div>
+        <p id="zoomCaption" style="margin-top: 1.5rem; color: var(--text-secondary);"></p>
+      </div>
+    </div>
+
+    <!-- 17. PRESENTATION MODE FULLSCREEN SLIDESHOW OVERLAY -->
+    <div class="presentation-overlay" id="presentationOverlay" style="display: none;">
+      <div class="pres-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <i data-lucide="sparkles" style="color: var(--primary-cyan); width: 22px; height: 22px;"></i>
+          <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; color: white;">CLIP MultiModal Insight AI &bull; Presentation Mode</span>
+        </div>
+        <button class="pres-nav-btn" id="exitPresBtn">
+          <i data-lucide="minimize-2"></i> Exit Presentation
+        </button>
+      </div>
+      
+      <div class="pres-slide-view">
+        <div class="pres-slide-content" id="presentationSlideContent">
+          <!-- Loaded Dynamically -->
+        </div>
+      </div>
+      
+      <div class="pres-footer">
+        <div style="color: var(--text-secondary); font-size: 0.9rem;" id="presSlideIndexText">Slide 1 of 5</div>
+        <div style="display: flex; gap: 1rem;">
+          <button class="pres-nav-btn" id="presPrevBtn"><i data-lucide="arrow-left"></i> Previous</button>
+          <button class="pres-nav-btn" id="presNextBtn">Next <i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Lucide Icons mapping -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Core Application Scripts -->
+  <script src="data.js?v=2.1"></script>
+  <script src="app.js?v=2.1"></script>
+
+</body>
+</html>
