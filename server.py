@@ -1,8 +1,9 @@
 import http.server
 import socketserver
 import sys
+import os
 
-PORT = 8080
+PORT = int(os.environ.get("PORT",8080))
 
 class SafeHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
